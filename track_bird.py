@@ -1,9 +1,7 @@
 import sys
 
 sys.path.insert(0, './yolov5')
-from PIL import Image
-import torch.multiprocessing as mp
-import warnings
+
 from yolov5.utils.google_utils import attempt_download
 from yolov5.models.experimental import attempt_load
 from yolov5.utils.datasets import LoadImages, LoadStreams
@@ -23,7 +21,6 @@ import cv2
 import torch
 import torch.backends.cudnn as cudnn
 from reid import REID
-import people_counting_v2
 import collections
 import copy
 import numpy as np
@@ -31,65 +28,6 @@ import operator
 import cv2
 import multiprocessing as mp
 import queue as Queue
-from itertools import chain
-from google.cloud import bigquery, storage
-import multiprocessing
-
-
-def get_frame(i, frame):
-    project_id = 'atsm-202107'
-    bucket_id = 'sanhak_2021'
-    dataset_id = 'sanhak_2021'
-    table_id = 'video_sec-10_frame-4'
-
-    storage_client = storage.Client()
-    db_client = bigquery.Client()
-    bucket = storage_client.bucket(bucket_id)
-    select_query = (
-        "SELECT camID, date_time, path FROM `{}.{}.{}` WHERE camID = {} ORDER BY date_time LIMIT 1".format(project_id,
-                                                                                                           dataset_id,
-                                                                                                           table_id, i))
-    query_job = db_client.query(select_query)
-    results = query_job.result()
-    for row in results:
-        path = row.path
-        dt = row.date_time
-
-    delete_query = (
-        "DELETE FROM `{}.{}.{}` WHERE date_time = '{}' AND camID = {}".format(project_id, dataset_id, table_id, dt, i))
-
-    query_job = db_client.query(delete_query)
-    results = query_job.result()
-    save = []
-    cam = cv2.VideoCapture(path)
-    cam.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-    cam.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-
-    if cam.isOpened():
-        while True:
-            ret, img = cam.read()
-            if ret:
-                cv2.waitKey(33)  # what is this??
-                save.append(img)
-            else:
-                break
-        frame.put(save)
-
-
-
-
-
-    else:
-        print('cannot open the vid #' + str(i))
-        exit()
-    # while True:
-    #     ret, realframe = cam.read()
-    #     if (time.time() - start_time) >= 3:
-    #         cam.release()
-    #         break
-    #     frame.append(realframe)
-
-
 
 def letterbox(img, new_shape=(640, 640), color=(114, 114, 114), auto=True, scaleFill=False, scaleup=True, stride=32):
     # Resize and pad image while meeting stride-multiple constraints
@@ -123,12 +61,26 @@ def letterbox(img, new_shape=(640, 640), color=(114, 114, 114), auto=True, scale
     img = cv2.copyMakeBorder(img, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color)  # add border
     return img, ratio, (dw, dh)
 
-
 palette = (2 ** 11 - 1, 2 ** 15 - 1, 2 ** 20 - 1)
 
+class LoadVideo:  # for inference
+    def __init__(self, path, img_size=(640, 480)):
+        if not os.path.isfile(path):
+            raise FileExistsError
 
+        self.cap = cv2.VideoCapture(path)
+        self.frame_rate = int(round(self.cap.get(cv2.CAP_PROP_FPS)))
+        self.vw = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        self.vh = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        self.vn = int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        self.width = img_size[0]
+        self.height = img_size[1]
+        self.count = 0
 
+        print('Length of {}: {:d} frames'.format(path, self.vn))
 
+    def get_VideoLabels(self):
+        return self.cap, self.frame_rate, self.vw, self.vh
 
 def xyxy_to_xywh(*xyxy):
     """" Calculates the relative bounding box from absolute pixel values. """
@@ -233,6 +185,7 @@ def detect(opt, dataset_list, return_dict, ids_per_frame_list, string, video_get
             time.sleep(1)
         start_time = time.time()
         dataset = dataset_list.get()
+        coor_get_list = list()
         deepsort = DeepSort(cfg.DEEPSORT.REID_CKPT,
                             max_dist=cfg.DEEPSORT.MAX_DIST, min_confidence=cfg.DEEPSORT.MIN_CONFIDENCE,
                             nms_max_overlap=cfg.DEEPSORT.NMS_MAX_OVERLAP,
@@ -240,7 +193,6 @@ def detect(opt, dataset_list, return_dict, ids_per_frame_list, string, video_get
                             max_age=cfg.DEEPSORT.MAX_AGE, n_init=cfg.DEEPSORT.N_INIT, nn_budget=cfg.DEEPSORT.NN_BUDGET,
                             use_cuda=True)
         track_cnt = dict()
-        coor_get_list = list()
         # print('time (init) : {}'.format(time.time() - time_init))
         t0 = time.time()
         frame_cnt = 1
@@ -310,8 +262,8 @@ def detect(opt, dataset_list, return_dict, ids_per_frame_list, string, video_get
                         identities = outputs[:, -1]
                         tlwh_bboxs = xyxy_to_tlwh(bbox_xyxy)
                         for j, (output, conf) in enumerate(zip(outputs, confs)):
-                            coor_dict[output[4]] = [output[2], (output[1] + output[3]) / 2]
-                    # print(len(coor_dict))
+                            coor_dict[output[4]] = [output[2], (output[1] + output[3])/2]
+                    #print(len(coor_dict))
                     coor_get_list.append(coor_dict)
                 else:
                     deepsort.increment_ages()
@@ -320,14 +272,13 @@ def detect(opt, dataset_list, return_dict, ids_per_frame_list, string, video_get
 
             drawimage.append(im0)
             frame_cnt += 1
-
         coor_get.put(coor_get_list)
         video_get.put(drawimage)
         video_get.put(track_cnt)
         return_dict.put(images_by_id)
         ids_per_frame_list.put(ids_per_frame)
         print(string + ' Tracking Done')
-
+        break
 
 def re_identification(return_dict1, return_dict2, ids_per_frame1_list, ids_per_frame2_list, video_get1, video_get2, coor_get1, coor_get2):
     reid = REID()
@@ -365,7 +316,6 @@ def re_identification(return_dict1, return_dict2, ids_per_frame1_list, ids_per_f
         ids_per_frame22 = []
         images_by_id = dict()
         feats = dict()
-        reid_dict = dict()
         size = len(return_list)
         for key, value in return_list2.items():
             return_list[key + size] = return_list2[key]
@@ -385,8 +335,7 @@ def re_identification(return_dict1, return_dict2, ids_per_frame1_list, ids_per_f
 
         for i in images_by_id:
             feats[i] = reid._features(images_by_id[i])
-
-
+        reid_dict = dict()
         for f in ids_per_frame:
             if f:
                 if len(exist_ids) == 0:
@@ -425,8 +374,6 @@ def re_identification(return_dict1, return_dict2, ids_per_frame1_list, ids_per_f
 
         print('Final ids and their sub-ids:', final_fuse_id)
         print('people : ', len(final_fuse_id))
-        #heatmapmake1 = dict()
-        #heatmapmake2 = dict()
 
         drawimage = video_get1.get()  # list
         size2 = len(drawimage)
@@ -443,44 +390,56 @@ def re_identification(return_dict1, return_dict2, ids_per_frame1_list, ids_per_f
         output = str(count) + '.avi'
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
         out = cv2.VideoWriter(output, fourcc, 7.5, (640, 480))
-        check = set(list())
+        #heatmaplist1 = list()
+        #heatmaplist2 = list()
+        #check = list()
         for frame in range(len(drawimage)):
-           img = drawimage[frame]
-           for idx in final_fuse_id:
-             for i in final_fuse_id[idx]: #i = id
-                for f in track_cnt1[i]:
-                    if frame == f[0]:
-                        text_scale, text_thickness, line_thickness = get_FrameLabels(img)
-                        cv2_addBox(idx, img, f[1], f[2], f[3], f[4], line_thickness, text_thickness, text_scale)
-                        """
-                        if(frame <= size2):
-                            if idx not in check:
-                                heatmapmake1[idx]=[[frame, f[3], f[4]]]
+            #heatmapframelist = list()
+            #check_set = set()
+            #check.append(check_set)
+            img = drawimage[frame]
+            for idx in final_fuse_id:
+                  for i in final_fuse_id[idx]: #i = id
+                     for f in track_cnt1[i]:
+                        if frame == f[0]:
+                            text_scale, text_thickness, line_thickness = get_FrameLabels(img)
+                            cv2_addBox(idx, img, f[1], f[2], f[3], f[4], line_thickness, text_thickness, text_scale)
+                            """
+                            if(frame < size2):
+                                print("video1" + str(frame) + " : " + str(size2))
+                                if idx not in check[frame]:
+                                    heatmapframelist.append([f[3], (f[2] + f[4])/2])
+                                check[frame].add(idx)
                             else:
-                                heatmapmake1[idx].append([frame, f[3], f[4]])
-                            check.append(idx)
-                        else:
-                            if idx not in check:
-                                heatmapmake2[idx] = [[frame-size2, f[3], f[4]]]
-                        """
-           #out.write(img)
+                                print("video2" + str(frame) + " : " + str(size2))
+                                if idx not in check[frame-size2]:
+                                    heatmapframelist.append([f[3], (f[2] + f[4])/2])
+                                check[frame].add(idx)
+            if frame < size2:
+                heatmaplist1.append(heatmapframelist)
+            else:
+                heatmaplist2.append(heatmapframelist)
+            """
+            out.write(img)
         out.release()
         video1_coor = coor_get1.get()
         video2_coor = coor_get2.get()
         heatmaplist1 = list()
         heatmaplist2 = list()
+        print('Video1')
         reid_set_list = list()
         for heatframelist in video1_coor:
             temp_list = list()
             temp_set = set()
-            # print(len(heatframelist))
+            #print(len(heatframelist))
             if len(heatframelist) > 0:
                 for key, value in heatframelist.items():
                     temp_list.append(value)
                     temp_set.add(key)
-            # print(len(temp_list))
+            #print(len(temp_list))
             heatmaplist1.append(temp_list)
             reid_set_list.append(temp_set)
+        print('Video2')
         index = 0
         for heatframelist in video2_coor:
             temp_list = list()
@@ -493,7 +452,7 @@ def re_identification(return_dict1, return_dict2, ids_per_frame1_list, ids_per_f
                     elif reid_dict[key_size] not in reid_set_list[index]:
                         temp_list.append(value)
                         reid_set_list[index].add(key_size)
-            # print(len(temp_list))
+            #print(len(temp_list))
             heatmaplist2.append(temp_list)
             index += 1
         save_path = 'test'
@@ -520,10 +479,10 @@ def re_identification(return_dict1, return_dict2, ids_per_frame1_list, ids_per_f
             name = str(i) + "_heat.jpg"
             if i % 20 == 0:
                 cv2.imwrite(os.path.join(save_path, name), background_image)
+
         count = count + 1
-
-
-
+        print("Finish")
+        break
 
 def get_FrameLabels(frame):
     text_scale = max(1, frame.shape[1] / 1600.)
@@ -541,32 +500,22 @@ def get_color(idx):
     color = ((37 * idx) % 255, (17 * idx) % 255, (29 * idx) % 255)
     return color
 
-
-
-
-
-
-
-warnings.filterwarnings('ignore')
-
-
-def pstart(frame_get, frame_get2):
-    cnt = 0
-
-
-    while (cnt < 8):
-        p1 = Process(target=get_frame, args=(0, frame_get), daemon=True)
-        p2 = Process(target=get_frame, args=(1, frame_get2), daemon=True)
-        p1.start()
-        p2.start()
-        p1.join()
-        p2.join()
-        cnt += 1
-
+def get_frame(source, return_list):
+  for video in source:
+    loadvideo = LoadVideo(video)
+    video_capture, frame_rate, w, h = loadvideo.get_VideoLabels()
+    video_frame = []
+    while True:
+        ret, frame = video_capture.read()
+        if ret != True:
+            video_capture.release()
+            break
+        video_frame.append(frame)
+    return_list.put(video_frame)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--yolo_weights', type=str, default='yolov5/models/yolov5x.pt', help='model.pt path')
+    parser.add_argument('--yolo_weights', type=str, default='yolov5/weights/yolov5s.pt', help='model.pt path')
     parser.add_argument('--deep_sort_weights', type=str, default='deep_sort_pytorch/deep_sort/deep/checkpoint/ckpt.t7',
                         help='ckpt.t7 path')
     # file/folder, 0 for webcam
@@ -581,47 +530,45 @@ if __name__ == '__main__':
     parser.add_argument('--save-vid', action='store_true', help='save video tracking results')
     parser.add_argument('--save-txt', action='store_true', help='save MOT compliant results to *.txt')
     # class 0 is person, 1 is bycicle, 2 is car... 79 is oven
-    parser.add_argument('--classes', nargs='+', type=int, default='0')
+    parser.add_argument('--classes', nargs='+', default='0', type=int, help='filter by class: --class 0, or --class 16 17')
     parser.add_argument('--agnostic-nms', action='store_true', help='class-agnostic NMS')
     parser.add_argument('--augment', action='store_true', help='augmented inference')
     parser.add_argument('--evaluate', action='store_true', help='augmented inference')
     parser.add_argument("--config_deepsort", type=str, default="deep_sort_pytorch/configs/deep_sort.yaml")
     args = parser.parse_args()
-
-    credential_path = "atsm-202107-50b0c3dc3869.json"
-    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credential_path
-    os.environ["CUDA_VISIBLE_DEVICES"] = "1"
-
-    multiprocessing.set_start_method("spawn")
-    frame_get1 = Manager().Queue()
-    frame_get2 = Manager().Queue()
     args.img_size = check_img_size(args.img_size)
-    p0 = Process(target=pstart, args=(frame_get1, frame_get2))
-    try:
-        p0.start()
+    #reid = REID()
+    video1 = ['calliberation/test_video_Trim.mp4']
+    video2 = ['calliberation/test_video_Trim.mp4']
 
-        with torch.no_grad():
-            ids_per_frame1 = Manager().Queue()
-            ids_per_frame2 = Manager().Queue()
-            return_dict1 = Manager().Queue()
-            return_dict2 = Manager().Queue()
-            video_get1 = Manager().Queue()
-            video_get2 = Manager().Queue()
-            coor_get1 = Manager().Queue()
-            coor_get2 = Manager().Queue()
-            p5 = mp.Process(target=detect, args=(args, frame_get1, return_dict1, ids_per_frame1, 'Video1', video_get1, coor_get1), daemon=True)
-            p6 = mp.Process(target=detect, args=(args, frame_get2, return_dict2, ids_per_frame2, 'Video2', video_get2, coor_get2), daemon=True)
-            p7 = mp.Process(target=re_identification, args=(return_dict1, return_dict2, ids_per_frame1, ids_per_frame2,
-                                                            video_get1, video_get2, coor_get1, coor_get2), daemon=True)
-            p5.start()
-            p6.start()
-            p7.start()
-            p7.join()
-    except KeyboardInterrupt:
-        p0.terminate()
-        p5.terminate()
-        p6.terminate()
-        p7.terminate()
-        sys.exit(0)
+    with torch.no_grad():
+        #mp.set_start_method('spawn')
 
+        frame_get1 = Manager().Queue()
+        frame_get2 = Manager().Queue()
+        p4 = Process(target = get_frame, args = (video1, frame_get1))
+        p5 = Process(target = get_frame, args = (video2, frame_get2))
+        p4.start()
+        p5.start()
+        p4.join()
+        p5.join()
+        ids_per_frame1 = Manager().Queue()
+        ids_per_frame2 = Manager().Queue()
+        return_dict1 = Manager().Queue()
+        return_dict2 = Manager().Queue()
+        video_get1 = Manager().Queue()
+        video_get2 = Manager().Queue()
+        coor_get1 = Manager().Queue()
+        coor_get2 = Manager().Queue()
+        p5 = mp.Process(target=detect, args=(args, frame_get1, return_dict1, ids_per_frame1, 'Video1', video_get1, coor_get1))
+        p6 = mp.Process(target=detect, args=(args, frame_get2, return_dict2, ids_per_frame2, 'Video2', video_get2, coor_get2))
+        p7 = mp.Process(target=re_identification, args=(return_dict1, return_dict2, ids_per_frame1, ids_per_frame2,
+                                                        video_get1, video_get2, coor_get1, coor_get2))
+        p5.start()
+        p6.start()
+        p7.start()
+        p5.join()
+        p6.join()
+        p7.join()
+        
 
