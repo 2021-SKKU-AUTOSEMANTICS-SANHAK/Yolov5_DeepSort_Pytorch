@@ -1,0 +1,7 @@
+vi1   vi2   skip sec resol Time 
+en    in       3  30 640   64.304
+en    in       3  60 640   47.521
+en    in       4  30 640   48.819
+en    in       4  60 640   38.620
+en    in       5  30 640   38.307
+en    in       5  60 640   132.147
