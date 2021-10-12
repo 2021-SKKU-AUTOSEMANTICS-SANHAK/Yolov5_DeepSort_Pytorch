@@ -73,7 +73,7 @@ for i in range(2):
     M = cv2.getPerspectiveTransform(nparray2, nparray1)
     warped = cv2.warpPerspective(image, M, (W, H))
     #print(pts2)
-    str_npy = "transformation_matrix" + str(i+1) + ".npy"
+    str_npy = "coor" + str(i+1) + ".npy"
     np.save(str_npy, M)
     #temp = cv2.perspectiveTransform(np.array(pts, dtype=np.float32).reshape(1, -1, 2), M)
     #a, b = tuple(temp[0][0])
