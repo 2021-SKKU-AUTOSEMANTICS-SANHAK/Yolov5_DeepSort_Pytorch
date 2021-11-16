@@ -126,9 +126,10 @@ def detect(opt, dataset_list, return_dict, ids_per_frame_list, string, video_get
         model(torch.zeros(1, 3, imgsz, imgsz).to(device).type_as(next(model.parameters())))  # run once
     count = 0
     while True:
-        print(string + 'start')
+
         while (dataset_list.empty()):
             time.sleep(1)
+        print(string + 'start')
         start_time = time.time()
         dataset = dataset_list.get()
         coor_get_list = list()
@@ -207,7 +208,7 @@ def detect(opt, dataset_list, return_dict, ids_per_frame_list, string, video_get
                         identities = outputs[:, -1]
                         tlwh_bboxs = xyxy_to_tlwh(bbox_xyxy)
                         for j, (output, conf) in enumerate(zip(outputs, confs)):
-                            coor_dict[output[4]] = [output[2], (output[1] + output[3]) / 2]
+                            coor_dict[output[4]] = [(output[0] + output[2])/2, (output[1] + output[3]) / 2]
                     # print(len(coor_dict))
 
 
@@ -215,7 +216,7 @@ def detect(opt, dataset_list, return_dict, ids_per_frame_list, string, video_get
                     deepsort.increment_ages()
                 coor_get_list.append(coor_dict)
                 # Print time (inference + NMS)
-                print('{}, {}/{} {}Done. ({}s)'.format(string, frame_cnt, len(dataset), s, t2 - t1))
+                #print('{}, {}/{} {}Done. ({}s)'.format(string, frame_cnt, len(dataset), s, t2 - t1))
 
             drawimage.append(im0)
             frame_cnt += 1

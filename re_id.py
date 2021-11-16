@@ -30,17 +30,20 @@ def re_identification(args, return_dict1, return_dict2, ids_per_frame1_list, ids
     num_video = args.num_video
     thres = int(args.heatmapsec / args.second)
     if args.matrix == 'None':
-        M2 = np.load("calliberation/coor_en_640.npy")
+        #print("none")
+        M2 = np.load("calliberation/coor_cam2_daiso_640.npy")
         M2 = np.array(M2, np.float32)
-        f2 = open('calliberation/coor_en_640.txt', 'r')
+        f2 = open('calliberation/coor_cam2_daiso_640.txt', 'r')
         line2 = f2.readline()
         coor2 = line2.split(' ')
         f2.close()
-        M1 = np.load("calliberation/coor_ele_640.npy")
+        M1 = np.load("calliberation/coor_cam1_daiso_640.npy")
         M1 = np.array(M1, np.float32)
-        f1 = open('calliberation/coor_ele_640.txt', 'r')
+        f1 = open('calliberation/coor_cam1_daiso_640.txt', 'r')
         line1 = f1.readline()
         coor1 = line1.split(' ')
+        #print(coor1)
+        #print(coor2)
         f1.close()
     else:
         x = args.matrix.split(' ')
@@ -59,9 +62,9 @@ def re_identification(args, return_dict1, return_dict2, ids_per_frame1_list, ids
             coor2 = line2.split(' ')
             f2.close()
         else:
-            M2 = np.load("calliberation/coor_en_640.npy")
+            M2 = np.load("calliberation/coor_cam2_daiso_640.npy")
             M2 = np.array(M2, np.float32)
-            f2 = open('calliberation/coor_en_640.txt', 'r')
+            f2 = open('calliberation/coor_cam2_daiso_640.txt', 'r')
             line2 = f2.readline()
             coor2 = line2.split(' ')
             f2.close()
@@ -91,7 +94,7 @@ def re_identification(args, return_dict1, return_dict2, ids_per_frame1_list, ids
             feats = dict()
             size = len(return_list)
             print('reid start')
-            monitor = Monitor(3)
+            #monitor = Monitor(3)
             for key, value in return_list2.items():
                 return_list[key + size] = return_list2[key]
             images_by_id = copy.deepcopy(return_list)
@@ -160,7 +163,7 @@ def re_identification(args, return_dict1, return_dict2, ids_per_frame1_list, ids
             print('people : {}. ID : {}'.format(len(final_fuse_id), final_fuse_id))
             heatmapcount += 1
             heatmapcount = heatmapcount % thres
-            if count+1 == args.limit and args.realtime != 1:
+            if count+1 == args.limit:
                 heatmapcount = 0
 
             ht.store(video_get1, video_get2, size, coor_get1, coor_get2, M1, M2, coor1, coor2,
@@ -188,7 +191,7 @@ def re_identification(args, return_dict1, return_dict2, ids_per_frame1_list, ids
         #print(reid_dict)
 
         count += 1
-        monitor.stop()
+        #monitor.stop()
         if args.realtime != 1 and count == args.limit:
             break
         elif args.limit != 0 and count == args.limit:

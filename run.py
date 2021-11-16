@@ -60,10 +60,10 @@ if __name__ == '__main__':
     parser.add_argument("--matrix", type=str, default='None')
     parser.add_argument("--num_video", type=int, default=2)
     parser.add_argument("--limit", type=int, default=2)
-    parser.add_argument("--background", type=str, default='calliberation/rest_plan.jpg')
+    parser.add_argument("--background", type=str, default='calliberation/background2.png')
     parser.add_argument("--heatmap", type=str, default=1)
     parser.add_argument("--frame", type=int, default=1)
-    parser.add_argument("--second", type=int, default=15)
+    parser.add_argument("--second", type=int, default=10)
     parser.add_argument("--threshold", type=int, default=320)
     parser.add_argument("--video", type=str, default='None')
     parser.add_argument("--heatmapsec", type=int, default=60)
@@ -74,16 +74,16 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     args.img_size = check_img_size(args.img_size)
-    credential_path = "atsm-202107-50b0c3dc3869.json"
+    credential_path = "rapid-rite-331803-22fb7fcac271.json"
     os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credential_path
     os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
     # reid = REID()
     video1 = ['calliberation/in1_Trim.mp4']  # 엘리베이터
     video2 = ['calliberation/in2_Trim.mp4']  # 입구
-    videos = [['calliberation/sample_video/ele.mp4'], ['calliberation/sample_video/en.mp4'], ['calliberation/sample_video/in.mp4']]  # 엘리베이터, 입구, 내부\
-    str_video = ['ele', 'en', 'in']
-
+    #videos = [['calliberation/sample_video/ele.mp4'], ['calliberation/sample_video/en.mp4'], ['calliberation/sample_video/in.mp4']]  # 엘리베이터, 입구, 내부\
+    str_video = ['cam1_daiso', 'cam2_daiso']
+    videos = [['calliberation/cam1.mp4'], ['calliberation/cam2.mp4']]
     try:
         from torchreid.metrics.rank_cylib.rank_cy import evaluate_cy
 
@@ -97,8 +97,9 @@ if __name__ == '__main__':
 
     with torch.no_grad():
         # mp.set_start_method('spawn')
-        video1 = videos[0];
-        video2 = videos[1];
+        if args.realtime == 0:
+            video1 = videos[0]
+            video2 = videos[1]
         if args.realtime == 0 and args.video != 'None':
             x = args.video.split(',')
             video1 = videos[int(x[0])]

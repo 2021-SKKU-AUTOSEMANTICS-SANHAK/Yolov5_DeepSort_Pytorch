@@ -26,7 +26,7 @@ class LoadVideo:  # for inference
 
 
 def get_frame(i, frame):
-    project_id = 'atsm-202107'
+    project_id = 'rapid-rite-331803'
     bucket_id = 'sanhak_2021'
     dataset_id = 'sanhak_2021'
     table_id = 'video_sec-10_frame-4'
@@ -40,6 +40,12 @@ def get_frame(i, frame):
                                                                                                         table_id, i))
     query_job = db_client.query(select_query)
     results = query_job.result()
+    while results.total_rows == 0:
+        #print("Sleep")
+        time.sleep(1)
+        query_job = db_client.query(select_query)
+        results = query_job.result()
+
     for row in results:
         path = row.path
         dt = row.date_time
@@ -104,6 +110,7 @@ def get_frame_video(source, return_list, skip_frame, second, fps, resol, end_lim
                     #video_frame.append(frame)
                     video_frame.append(cv2.resize(frame, (width, height)))
                 index += 1
+            #print(video_frame[0].shape[:2])
             return_list.put(video_frame)
             if release or return_list.qsize() == end_limit:
                 break
