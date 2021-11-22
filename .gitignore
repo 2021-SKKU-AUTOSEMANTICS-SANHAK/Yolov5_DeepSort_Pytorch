@@ -2,6 +2,7 @@
 .venv/
 .idea/
 atsm-202107-50b0c3dc3869.json
+rapid-rite-331803-22fb7fcac271.json
 model_data/
 sample_video/
 deep_sort_pytorch/deep_sort/deep/checkpoint/*
