@@ -1,11 +1,11 @@
-from .track import detect
+from track import detect
 import re_id as re
 import frameget as fg
-import queue as Queue
+import queue
 from multiprocessing import Process, Manager
 import argparse
 import os
-from .yolov5.utils.general import check_img_size
+from yolov5.utils.general import check_img_size
 import subprocess
 import warnings
 import torch
@@ -112,78 +112,151 @@ def run(realtime, reid, heatmap, yolo_weight, reid_model, deepsort_model, frame_
 
     with torch.no_grad():
         # mp.set_start_method('spawn')
+
         if args.realtime == 0:
             video1 = videos[0]
             video2 = videos[1]
-        if args.realtime == 0 and args.video != 'None':
-            x = args.video.split(',')
-            video1 = videos[int(x[0])]
+            if args.video != 'None':
+                x = args.video.split(',')
+                video1 = videos[int(x[0])]
+                if args.num_video == 2:
+                    video2 = videos[int(x[1])]
+                args.matrix = 'coor_' + str_video[int(x[0])]
+                if args.num_video == 2:
+                    args.matrix += ' coor_' + str_video[int(x[1])]
+            now = time.localtime()
+            date_time = time.strftime('%Y_%m_%d_%H_%M', now)
+            args.date_time = date_time
+            frame_get1 = queue.Queue()
+            frame_get2 = queue.Queue()
+            fg.get_frame_video(video1, frame_get1, args.frame, args.second, args.fps, args.resolution, args.limit)
             if args.num_video == 2:
-                video2 = videos[int(x[1])]
-            args.matrix = 'coor_' + str_video[int(x[0])]
-            if args.num_video == 2:
-                args.matrix += ' coor_' + str_video[int(x[1])]
-        now = time.localtime()
-        date_time = time.strftime('%Y_%m_%d_%H_%M', now)
-        args.date_time = date_time
-        frame_get1 = Manager().Queue()
-        frame_get2 = Manager().Queue()
-        if args.realtime:
-            p0 = Process(target=pstart, args=(frame_get1, frame_get2, args.limit))
-            p0.start()
-        else:
-            p1 = Process(target=fg.get_frame_video,
-                         args=(video1, frame_get1, args.frame, args.second, args.fps, args.resolution, args.limit))
-            p1.start()
-            if args.num_video == 2:
-                p2 = Process(target=fg.get_frame_video,
-                             args=(video2, frame_get2, args.frame, args.second, args.fps, args.resolution, args.limit))
-                p2.start()
-                p2.join()
-            p1.join()
+                fg.get_frame_video(video2, frame_get2, args.frame, args.second, args.fps, args.resolution, args.limit)
             args.limit = frame_get1.qsize()
             if args.num_video == 2:
                 size2 = frame_get2.qsize()
                 if args.limit > size2:
                     args.limit = size2
-        # print(frame_get1.qsize())
-        # print(frame_get2.qsize())
-        ids_per_frame1 = Manager().Queue()
-        ids_per_frame2 = Manager().Queue()
-        return_dict1 = Manager().Queue()
-        return_dict2 = Manager().Queue()
-        video_get1 = Manager().Queue()
-        video_get2 = Manager().Queue()
-        coor_get1 = Manager().Queue()
-        coor_get2 = Manager().Queue()
-        p5 = Process(target=detect,
-                     args=(args, frame_get1, return_dict1, ids_per_frame1, 'Video1', video_get1, coor_get1),
-                     daemon=True)
-        if args.realtime == 1 or args.num_video == 2:
-            p6 = Process(target=detect,
-                         args=(args, frame_get2, return_dict2, ids_per_frame2, 'Video2', video_get2, coor_get2),
-                         daemon=True)
-        p7 = Process(target=re.re_identification,
-                     args=(args, return_dict1, return_dict2, ids_per_frame1, ids_per_frame2,
-                           video_get1, video_get2, coor_get1, coor_get2), daemon=True)
-        p5.start()
-        if args.num_video == 2:
-            p6.start()
-        p7.start()
+            ids_per_frame1 = queue.Queue()
+            ids_per_frame2 = queue.Queue()
+            return_dict1 = queue.Queue()
+            return_dict2 = queue.Queue()
+            video_get1 = queue.Queue()
+            video_get2 = queue.Queue()
+            coor_get1 = queue.Queue()
+            coor_get2 = queue.Queue()
+            detect(args, frame_get1, return_dict1, ids_per_frame1, 'Video1', video_get1, coor_get1)
+            if args.num_video == 2:
+                detect(args, frame_get2, return_dict2, ids_per_frame2, 'Video2', video_get2, coor_get2)
+            re.re_identification(args, return_dict1, return_dict2, ids_per_frame1, ids_per_frame2, video_get1, video_get2, coor_get1, coor_get2)
 
-        p7.join()
+        else:
+            now = time.localtime()
+            date_time = time.strftime('%Y_%m_%d_%H_%M', now)
+            args.date_time = date_time
+            frame_get1 = Manager().Queue()
+            frame_get2 = Manager().Queue()
+
+            p0 = Process(target=pstart, args=(frame_get1, frame_get2, args.limit))
+            p0.start()
+
+            ids_per_frame1 = Manager().Queue()
+            ids_per_frame2 = Manager().Queue()
+            return_dict1 = Manager().Queue()
+            return_dict2 = Manager().Queue()
+            video_get1 = Manager().Queue()
+            video_get2 = Manager().Queue()
+            coor_get1 = Manager().Queue()
+            coor_get2 = Manager().Queue()
+            p5 = Process(target=detect,
+                         args=(args, frame_get1, return_dict1, ids_per_frame1, 'Video1', video_get1, coor_get1),
+                         daemon=True)
+            if args.num_video == 2:
+                p6 = Process(target=detect,
+                             args=(args, frame_get2, return_dict2, ids_per_frame2, 'Video2', video_get2, coor_get2),
+                             daemon=True)
+            p7 = Process(target=re.re_identification,
+                         args=(args, return_dict1, return_dict2, ids_per_frame1, ids_per_frame2,
+                               video_get1, video_get2, coor_get1, coor_get2), daemon=True)
+            p5.start()
+            if args.num_video == 2:
+                p6.start()
+            p7.start()
+
+            p7.join()
+
+        # if args.realtime == 0:
+        #     video1 = videos[0]
+        #     video2 = videos[1]
+        # if args.realtime == 0 and args.video != 'None':
+        #     x = args.video.split(',')
+        #     video1 = videos[int(x[0])]
+        #     if args.num_video == 2:
+        #         video2 = videos[int(x[1])]
+        #     args.matrix = 'coor_' + str_video[int(x[0])]
+        #     if args.num_video == 2:
+        #         args.matrix += ' coor_' + str_video[int(x[1])]
+        # now = time.localtime()
+        # date_time = time.strftime('%Y_%m_%d_%H_%M', now)
+        # args.date_time = date_time
+        # frame_get1 = Manager().Queue()
+        # frame_get2 = Manager().Queue()
+        # if args.realtime:
+        #     p0 = Process(target=pstart, args=(frame_get1, frame_get2, args.limit))
+        #     p0.start()
+        # else:
+        #     p1 = Process(target=fg.get_frame_video,
+        #                  args=(video1, frame_get1, args.frame, args.second, args.fps, args.resolution, args.limit))
+        #     p1.start()
+        #     if args.num_video == 2:
+        #         p2 = Process(target=fg.get_frame_video,
+        #                      args=(video2, frame_get2, args.frame, args.second, args.fps, args.resolution, args.limit))
+        #         p2.start()
+        #         p2.join()
+        #     p1.join()
+        #     args.limit = frame_get1.qsize()
+        #     if args.num_video == 2:
+        #         size2 = frame_get2.qsize()
+        #         if args.limit > size2:
+        #             args.limit = size2
+        # # print(frame_get1.qsize())
+        # # print(frame_get2.qsize())
+        # ids_per_frame1 = Manager().Queue()
+        # ids_per_frame2 = Manager().Queue()
+        # return_dict1 = Manager().Queue()
+        # return_dict2 = Manager().Queue()
+        # video_get1 = Manager().Queue()
+        # video_get2 = Manager().Queue()
+        # coor_get1 = Manager().Queue()
+        # coor_get2 = Manager().Queue()
+        # p5 = Process(target=detect,
+        #              args=(args, frame_get1, return_dict1, ids_per_frame1, 'Video1', video_get1, coor_get1),
+        #              daemon=True)
+        # if args.realtime == 1 or args.num_video == 2:
+        #     p6 = Process(target=detect,
+        #                  args=(args, frame_get2, return_dict2, ids_per_frame2, 'Video2', video_get2, coor_get2),
+        #                  daemon=True)
+        # p7 = Process(target=re.re_identification,
+        #              args=(args, return_dict1, return_dict2, ids_per_frame1, ids_per_frame2,
+        #                    video_get1, video_get2, coor_get1, coor_get2), daemon=True)
+        # p5.start()
+        # if args.num_video == 2:
+        #     p6.start()
+        # p7.start()
+        #
+        # p7.join()
 # realtime, reid, heatmap, yolo_weight, reid_model, deepsort_model, frame_skip, video_length, heatmap_accumulation, fps, videos_num, resolution
-# run(
-#     realtime=False,
-#     reid=True,
-#     heatmap=True,
-#     yolo_weight="yolov5x.pt",
-#     reid_model="plr_osnet",
-#     deepsort_model="ckpt.t7",
-#     frame_skip=1,
-#     video_length=15,
-#     heatmap_accumulation=63,
-#     fps=15,
-#     videos_num=2,
-#     resolution='640'
-# )
+run(
+    realtime=False,
+    reid=True,
+    heatmap=True,
+    yolo_weight="yolov5x.pt",
+    reid_model="plr_osnet",
+    deepsort_model="ckpt.t7",
+    frame_skip=1,
+    video_length=15,
+    heatmap_accumulation=63,
+    fps=15,
+    videos_num=2,
+    resolution='640'
+)
