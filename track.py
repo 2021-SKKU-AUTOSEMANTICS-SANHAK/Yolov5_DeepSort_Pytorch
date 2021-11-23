@@ -2,7 +2,7 @@ import sys
 
 sys.path.insert(0, './yolov5')
 
-from yolov5.utils.google_utils import attempt_download
+from .yolov5.utils.google_utils import attempt_download
 from yolov5.models.experimental import attempt_load
 from yolov5.utils.datasets import LoadImages, LoadStreams
 from yolov5.utils.general import check_img_size, non_max_suppression, scale_coords, \
