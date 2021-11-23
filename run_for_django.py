@@ -1,11 +1,11 @@
-from track import detect
+from .track import detect
 import re_id as re
 import frameget as fg
 import queue as Queue
 from multiprocessing import Process, Manager
 import argparse
 import os
-from yolov5.utils.general import check_img_size
+from .yolov5.utils.general import check_img_size
 import subprocess
 import warnings
 import torch
@@ -173,17 +173,17 @@ def run(realtime, reid, heatmap, yolo_weight, reid_model, deepsort_model, frame_
 
         p7.join()
 # realtime, reid, heatmap, yolo_weight, reid_model, deepsort_model, frame_skip, video_length, heatmap_accumulation, fps, videos_num, resolution
-run(
-    realtime=False,
-    reid=True,
-    heatmap=True,
-    yolo_weight="yolov5x.pt",
-    reid_model="plr_osnet",
-    deepsort_model="ckpt.t7",
-    frame_skip=1,
-    video_length=15,
-    heatmap_accumulation=63,
-    fps=15,
-    videos_num=2,
-    resolution='640'
-)
+# run(
+#     realtime=False,
+#     reid=True,
+#     heatmap=True,
+#     yolo_weight="yolov5x.pt",
+#     reid_model="plr_osnet",
+#     deepsort_model="ckpt.t7",
+#     frame_skip=1,
+#     video_length=15,
+#     heatmap_accumulation=63,
+#     fps=15,
+#     videos_num=2,
+#     resolution='640'
+# )
