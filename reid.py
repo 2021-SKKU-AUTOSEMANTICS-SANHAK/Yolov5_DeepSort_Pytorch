@@ -63,7 +63,7 @@ class REID:
             )
             self.dist_metric = 'euclidean'
             self.model.eval()
-            torchreid.utils.load_pretrained_weights(self.model, 'model_data/models/market1501+cuhksysu.pth.tar-140')
+            torchreid.utils.load_pretrained_weights(self.model, 'model_data/models/plr_osnet.pth')
 
         elif args.model == 'resnet50':
             self.model = torchreid.models.build_model(

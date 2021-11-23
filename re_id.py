@@ -92,13 +92,13 @@ def re_identification(args, return_dict1, return_dict2, ids_per_frame1_list, ids
             ids_per_frame22 = []
             images_by_id = dict()
             feats = dict()
-            size = len(return_list)
+            size = max(return_list.keys())
             print('reid start')
             #monitor = Monitor(3)
             for key, value in return_list2.items():
                 return_list[key + size] = return_list2[key]
             images_by_id = copy.deepcopy(return_list)
-            print(len(images_by_id))
+            #print(len(images_by_id))
 
             for i in ids_per_frame2:
                 d = set()
@@ -125,7 +125,7 @@ def re_identification(args, return_dict1, return_dict2, ids_per_frame1_list, ids
                             new_ids = f - exist_ids
                             for nid in new_ids:
                                 dis = []
-                                if len(images_by_id[nid]) < 10:
+                                if len(images_by_id[nid]) < args.fps/args.frame:
                                     exist_ids.add(nid)
                                     continue
                                 unpickable = []
@@ -133,7 +133,9 @@ def re_identification(args, return_dict1, return_dict2, ids_per_frame1_list, ids
                                     for key, item in final_fuse_id.items():
                                         if i in item:
                                             unpickable += final_fuse_id[key]
-                                #print('exist_ids {} unpickable {}'.format(exist_ids, unpickable))
+                                #print('exist_ids {} unpickable {} final_fuse_id {}'.format(exist_ids, unpickable, final_fuse_id.keys()))
+                                #print('final_fuse_id {}'.format(final_fuse_id))
+                                #print('compare {}'.format((exist_ids - set(unpickable)) & set(final_fuse_id.keys())))
                                 for oid in (exist_ids - set(unpickable)) & set(final_fuse_id.keys()):
                                     tmp = np.mean(reid.compute_distance(feats[nid], feats[oid]))
 
@@ -146,14 +148,14 @@ def re_identification(args, return_dict1, return_dict2, ids_per_frame1_list, ids
                                 dis.sort(key=operator.itemgetter(1))
                                 if dis[0][1] < threshold:
                                     combined_id = dis[0][0]
-                                    print(dis[0][1])
+                                    #print(dis[0][1])
                                     #print('oid {} , nid {} , tmp {}'.format(combined_id, nid, dis[0][1]))
                                     images_by_id[combined_id] += images_by_id[nid]
                                     final_fuse_id[combined_id].append(nid)
                                     reid_dict[nid] = combined_id
                                 else:
                                     final_fuse_id[nid] = [nid]
-                                    print(dis[0][1])
+                                    #print(dis[0][1])
             else:
                 for f in ids_per_frame:
                     if f:

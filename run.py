@@ -65,7 +65,7 @@ if __name__ == '__main__':
     parser.add_argument("--heatmap", type=str, default=1)
     parser.add_argument("--frame", type=int, default=1)
     parser.add_argument("--second", type=int, default=10)
-    parser.add_argument("--threshold", type=int, default=320)
+    parser.add_argument("--threshold", type=float, default=320)
     parser.add_argument("--video", type=str, default='None')
     parser.add_argument("--heatmapsec", type=int, default=60)
     parser.add_argument("--model", type=str, default='plr_osnet')
