@@ -114,7 +114,7 @@ def re_identification(args, return_dict1, return_dict2, ids_per_frame1_list, ids
             reid_dict = dict()
             if(args.reid=="on"):
                 for i in images_by_id:
-                    feats[i] = reid._features(images_by_id[i][:min(len(images_by_id[i]), 60)])
+                    feats[i] = reid._features(images_by_id[i][:min(len(images_by_id[i]), 10)])
                 for f in ids_per_frame:
                     if f:
                         if len(exist_ids) == 0:

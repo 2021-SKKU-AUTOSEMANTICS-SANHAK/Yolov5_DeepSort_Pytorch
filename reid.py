@@ -35,7 +35,7 @@ class REID:
             )
             self.dist_metric = 'euclidean'
             self.model.eval()
-            torchreid.utils.load_pretrained_weights(self.model, 'model_data/models/osnetx1.0.pth.tar-150')
+            torchreid.utils.load_pretrained_weights(self.model, 'model_data/models/osnet.pth.tar-80')
         elif args.model == 'plr_osnet':
             self.model = torchreid.models.build_model(
                 name=args.model,
