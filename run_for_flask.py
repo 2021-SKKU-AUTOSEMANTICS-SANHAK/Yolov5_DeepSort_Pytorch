@@ -1,11 +1,11 @@
-from .track import detect
+from track import detect
 import re_id as re
 import frameget as fg
 import queue
 from multiprocessing import Process, Manager
 import argparse
 import os
-from .yolov5.utils.general import check_img_size
+from yolov5.utils.general import check_img_size
 import subprocess
 import warnings
 import torch
