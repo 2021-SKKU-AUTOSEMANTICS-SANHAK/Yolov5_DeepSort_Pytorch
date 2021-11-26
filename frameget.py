@@ -4,6 +4,7 @@ import cv2
 import os
 import queue as Queue
 import time
+import sys
 
 class LoadVideo:  # for inference
     def __init__(self, path, img_size=(640, 480)):
