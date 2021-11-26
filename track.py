@@ -1,7 +1,8 @@
 import sys
+import os
 
 # sys.path.insert(0, '/yolov5')
-sys.path.append('/home/hhr/sehwan/test/ydp/yolov5')
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'yolov5'))
 from yolov5.utils.google_utils import attempt_download
 from yolov5.models.experimental import attempt_load
 from yolov5.utils.datasets import LoadImages, LoadStreams
