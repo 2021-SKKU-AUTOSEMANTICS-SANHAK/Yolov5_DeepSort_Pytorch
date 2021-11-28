@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Test Controller</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <!-- main css -->
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div id="title">
+    <h1>People Counting System Test Web Controller</h1>
+  </div>
+  <hr>
+
+  <section>
+    <div class="start-button">
+<!--{#      <button id ="btn" type="button" name="button">Start</button>#}-->
+      <div id="btn">
+          <span>Start</span>
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+      </div>
+    </div>
+    <div class="wrapper">
+        <div class="sub-section">
+          <div class="radio-group">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" role="switch" id="realtime">
+              <label class="form-check-label" for="flexSwitchCheckDefault">Realtime</label>
+            </div>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" role="switch" id="reid" checked>
+              <label class="form-check-label" for="flexSwitchCheckDefault1">Re-Identification</label>
+            </div>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" role="switch" id="heatmap" checked>
+              <label class="form-check-label" for="flexSwitchCheckDefault2">Heatmap</label>
+            </div>
+          </div>
+          <div class="select-group divide-half-hor" id="yolo">
+             <span>YOLO weight</span>
+             <select name='yolo_weights'>
+              <option value='' disabled selected>-- select --</option>
+              <option value='yolov5s.pt'>YOLOv5 small</option>
+              <option value='yolov5m.pt'>YOLOv5 medium</option>
+              <option value='yolov5l.pt'>YOLOv5 large</option>
+              <option value='yolov5x.pt'>YOLOv5 X-large</option>
+             </select>
+         </div>
+         <div class="select-group divide-half-hor" id="reid_model">
+            <span>Re-Identification model</span>
+            <select name='reid_model'>
+              <option value='' disabled selected>-- select --</option>
+              <option value='plr_osnet'>plr_osnet</option>
+              <option value='osnet_x1_0'>osnet_x1_0</option>
+              <option value='resnet50'>resnet50</option>
+              <option value='moco'>moco</option>
+            </select>
+         </div>
+         <div class="select-group divide-half-hor" id="ds_model">
+             <span>DeepSORT model</span>
+             <select name='deepsort_model'>
+              <option value='' disabled selected>-- select --</option>
+              <option value='ckpt.t7'>ckpt.t7(default)</option>
+             </select>
+         </div>
+         <div class="input-group divide-half-hor" id="frame_skip">
+             <span>Frame skip</span>
+             <input type="text" value="1">
+         </div>
+         <div class="input-group divide-half-hor" id="video_length">
+             <span>Input video length</span>
+             <input type="text" value="15">
+         </div>
+         <div class="input-group divide-half-hor" id="heatmap_cumul_sec">
+             <span>Heatmap 누적 seconds</span>
+             <input type="text" value="60">
+         </div>
+         <div class="input-group divide-half-hor" id="fps">
+             <span>Input video fps</span>
+             <input type="text" value="15">
+         </div>
+         <div class="input-group divide-half-hor" id="videos_num">
+             <span>The number of videos</span>
+             <input type="text" value="2">
+         </div>
+         <div class="input-group divide-half-hor" id="resol">
+             <span>Resolution</span>
+             <input type="text" value="640">
+         </div>
+        </div>
+        <div class="output-wrapper">
+            <h1>HELLOOOO</h1>
+            <img src="{{ url_for('static', filename='2021_11_24_22_41_0.png') }}" alt="">
+        </div>
+    </div>
+
+
+
+  </section>
+
+
+
+
+
+
+
+
+
+
+    <script type="text/javascript" src="{{ url_for('static', filename='jav.js') }}"></script>
+</body>
+</html>

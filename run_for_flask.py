@@ -249,17 +249,17 @@ def run(realtime, reid, heatmap, yolo_weight, reid_model, deepsort_model, frame_
         #
         # p7.join()
 # realtime, reid, heatmap, yolo_weight, reid_model, deepsort_model, frame_skip, video_length, heatmap_accumulation, fps, videos_num, resolution
-run(
-    realtime=False,
-    reid=True,
-    heatmap=True,
-    yolo_weight="yolov5x.pt",
-    reid_model="plr_osnet",
-    deepsort_model="ckpt.t7",
-    frame_skip=1,
-    video_length=15,
-    heatmap_accumulation=63,
-    fps=15,
-    videos_num=2,
-    resolution='640'
-)
+# run(
+#     realtime=False,
+#     reid=True,
+#     heatmap=True,
+#     yolo_weight="yolov5x.pt",
+#     reid_model="plr_osnet",
+#     deepsort_model="ckpt.t7",
+#     frame_skip=1,
+#     video_length=15,
+#     heatmap_accumulation=63,
+#     fps=15,
+#     videos_num=2,
+#     resolution='640'
+# )
