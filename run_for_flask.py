@@ -101,7 +101,7 @@ def run(realtime, reid, heatmap, yolo_weight, reid_model, deepsort_model, frame_
     # video2 = ['calliberation/in2_Trim.mp4']  # 입구
     # videos = [['calliberation/sample_video/ele.mp4'], ['calliberation/sample_video/en.mp4'], ['calliberation/sample_video/in.mp4']]  # 엘리베이터, 입구, 내부\
     str_video = ['cam1_daiso', 'cam2_daiso']
-    videos = [['calliberation/cam1.mp4'], ['calliberation/cam2.mp4']]
+    videos = []
     try:
         from torchreid.metrics.rank_cylib.rank_cy import evaluate_cy
 
@@ -117,6 +117,9 @@ def run(realtime, reid, heatmap, yolo_weight, reid_model, deepsort_model, frame_
         # mp.set_start_method('spawn')
 
         if args.realtime == 0:
+            with open("./input.txt") as file:
+                for f in file:
+                    videos.append([f.replace('\n', '', 1)])
             video1 = videos[0]
             video2 = videos[1]
             if args.video != 'None':

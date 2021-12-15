@@ -84,7 +84,7 @@ if __name__ == '__main__':
     #video2 = ['calliberation/in2_Trim.mp4']  # 입구
     #videos = [['calliberation/sample_video/ele.mp4'], ['calliberation/sample_video/en.mp4'], ['calliberation/sample_video/in.mp4']]  # 엘리베이터, 입구, 내부\
     str_video = ['cam1_daiso', 'cam2_daiso']
-    videos = [['calliberation/cam1.mp4'], ['calliberation/cam2.mp4']]
+    videos = list()
     try:
         from torchreid.metrics.rank_cylib.rank_cy import evaluate_cy
 
@@ -99,6 +99,9 @@ if __name__ == '__main__':
     with torch.no_grad():
         # mp.set_start_method('spawn')
         if args.realtime == 0:
+            with open("input.txt") as file:
+                for f in file:
+                    videos.append([f.replace('\n', '', 1)])
             video1 = videos[0]
             video2 = videos[1]
         if args.realtime == 0 and args.video != 'None':
