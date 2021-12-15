@@ -16,6 +16,10 @@ tensorboard
 Cython
 GPUtil
 flask
+h5py==2.10.0
+wrapt>=1.11.1
+scikit-image>=0.16.1
+gdown
 
 # plotting ------------------------------------
 
