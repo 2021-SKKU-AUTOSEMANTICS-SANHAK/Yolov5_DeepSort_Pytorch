@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Test Controller</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+  <!-- main css -->
+
+</head>
+<body>
+<div id="title">
+    <h1>People Counting System Test Web Controller</h1>
+  </div>
+  <hr>
+    <div style="font-size:1.5em;color:white;text-align: center">Please check extra videos in static folder.</div>
+  <hr>
+
+    <div class="outputs">
+        <span>{{ first_line }}</span>
+        <span>{{ second_line }}</span>
+        <img src="{{ url_for('static', filename='heatmap/'+ pref +'_0.png') }}">
+        <img src="{{ url_for('static', filename='heatmap/'+ pref +'_1.png') }}">
+    </div>
+
+<script type="text/javascript" src="{{ url_for('static', filename='forvid.js') }}">
+
+</script>
+</body>
+</html>

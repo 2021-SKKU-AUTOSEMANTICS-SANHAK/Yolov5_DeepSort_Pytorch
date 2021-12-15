@@ -26,6 +26,9 @@
             <span class="visually-hidden">Loading...</span>
           </div>
       </div>
+      <div id="btn2">
+          <span><a href="{{ url_for('outputs') }}">Wanna see outputs?</a></span>
+      </div>
     </div>
     <div class="wrapper">
         <div class="sub-section">
@@ -96,8 +99,14 @@
          </div>
         </div>
         <div class="output-wrapper">
-            <h1>HELLOOOO</h1>
-            <img src="{{ url_for('static', filename='2021_11_24_22_41_0.png') }}" alt="">
+<!--            {% if datetime %}-->
+<!--            <img src="{{ url_for('static', filename='basic.png') }}" alt="">-->
+<!--&lt;!&ndash;            {% else %}&ndash;&gt;-->
+            <img src="{{ url_for('static', filename='heatmap/'+ output.datetime +'_0.png') }}" alt="">
+            <video controls>
+                <source src="{{ url_for('static', filename='video/'+ output.datetime +'_0.avi') }}" type="video/avi">
+            </video>
+            {% endif %}
         </div>
     </div>
 

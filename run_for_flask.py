@@ -68,7 +68,7 @@ def run(realtime, reid, heatmap, yolo_weight, reid_model, deepsort_model, frame_
     # parser.add_argument("--heatmap", type=str, default=1)
     # parser.add_argument("--frame", type=int, default=1)
     # parser.add_argument("--second", type=int, default=10)
-    parser.add_argument("--threshold", type=int, default=320)
+    parser.add_argument("--threshold", type=int, default=2.5)
     parser.add_argument("--video", type=str, default='None')
     # parser.add_argument("--heatmapsec", type=int, default=60)
     # parser.add_argument("--model", type=str, default='plr_osnet')
@@ -82,11 +82,11 @@ def run(realtime, reid, heatmap, yolo_weight, reid_model, deepsort_model, frame_
     args.reid = "on" if reid else "off"
     args.heatmap = 1 if heatmap else 0
     args.save_vid = True
-    args.frame = frame_skip
-    args.second = video_length
-    args.heatmapsec = heatmap_accumulation
-    args.fps = fps
-    args.num_video = videos_num
+    args.frame = int(frame_skip)
+    args.second = int(video_length)
+    args.heatmapsec = int(heatmap_accumulation)
+    args.fps = int(fps)
+    args.num_video = int(videos_num)
     args.resolution = resolution
     args.yolo_weights = "yolov5/weights/" + yolo_weight
     args.model = reid_model
@@ -152,6 +152,7 @@ def run(realtime, reid, heatmap, yolo_weight, reid_model, deepsort_model, frame_
             if args.num_video == 2:
                 detect(args, frame_get2, return_dict2, ids_per_frame2, 'Video2', video_get2, coor_get2)
             re.re_identification(args, return_dict1, return_dict2, ids_per_frame1, ids_per_frame2, video_get1, video_get2, coor_get1, coor_get2)
+            return date_time
 
         else:
             now = time.localtime()
@@ -187,6 +188,8 @@ def run(realtime, reid, heatmap, yolo_weight, reid_model, deepsort_model, frame_
             p7.start()
 
             p7.join()
+
+            return ""
 
         # if args.realtime == 0:
         #     video1 = videos[0]

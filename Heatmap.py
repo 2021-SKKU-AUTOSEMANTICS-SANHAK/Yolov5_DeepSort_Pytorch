@@ -33,9 +33,9 @@ def store(video_get1, video_get2, size, coor_get1, coor_get2,
           reid_dict, background, save_vid, save_txt, heatmapcount, example_points, heat_name, date_time):
     #monitor = Monitor(5)
     #print('heatmap start')
-    out = './output/video/'
-    heatout ='./output/heatmap'
-    cortxt = './output/cortxt/'
+    out = './static/video/'
+    heatout ='./static/heatmap/'
+    cortxt = './static/cortxt/'
     if not os.path.exists(out):
         os.makedirs(out)  # make new output folder
         os.makedirs(heatout)
@@ -189,7 +189,7 @@ def store(video_get1, video_get2, size, coor_get1, coor_get2,
             corfile.write('coordinate : {0}\n'.format(pointcheck[a]))
     if heatmapcount == 0:
         heatmap = heatmapper.heatmap_on_img(example_points, example_img)
-        saveheat = './output/heatmap/' + date_time + '_' + str(heat_name) + '.png'
+        saveheat = heatout + date_time + '_' + str(heat_name) + '.png'
         heatmap.save(saveheat)
     corfile.close()
     print("Finish")

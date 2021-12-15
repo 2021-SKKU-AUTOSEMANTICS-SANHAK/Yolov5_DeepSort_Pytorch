@@ -23,6 +23,10 @@ function setSpinner(flag){
     }
 }
 
+// $('#btn2').click(function({
+//     var datetime = sessionStorage.getItem('datetime');
+// })
+
 $('#btn').click(function(){
    var isRealtime = $('#realtime');
    var isReid = $('#reid');
@@ -59,7 +63,8 @@ $('#btn').click(function(){
       success:function(json){
           console.log("data pass success", json);
           setSpinner(false);
-          $('.output-wrapper').show();
+          sessionStorage.setItem('datetime', json.datetime);
+          $('#btn2').show();
       },
       error:function(){
           alert('data fail');

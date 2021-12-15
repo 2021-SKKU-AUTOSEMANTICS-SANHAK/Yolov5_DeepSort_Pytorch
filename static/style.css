@@ -20,6 +20,9 @@ hr{
 
 .start-button{
     text-align: center;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
 }
 
 #btn{
@@ -36,6 +39,17 @@ hr{
 
 #btn div{
     font-size: 0.8em;
+    display: none;
+}
+#btn2{
+    width: 250px;
+    height: 80px;
+    background-color: white;
+    border-radius: 10px;
+    line-height: 80px;
+    font-size: 1.6em;
+    margin: 0 auto;
+    margin-bottom: 30px;
     display: none;
 }
 
@@ -94,4 +108,29 @@ select{
     height: 100px;
     margin-left: 30px;
     display: none;
+}
+
+.output-wrapper img{
+    width: 550px;
+    height: auto;
+}
+.output-wrapper video{
+    width: 550px;
+    height: auto;
+}
+
+.outputs{
+    margin: 50px;
+    display: grid;
+    grid-template-rows: 1fr 4fr;
+    grid-template-columns: 1fr 1fr;
+}
+
+.outputs span{
+    font-size: 2em;
+    color: white;
+}
+.outputs img{
+    width: 550px;
+    height: auto;
 }
