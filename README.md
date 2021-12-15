@@ -56,7 +56,9 @@ model_data/를 Yolov5_DeepSort_Pytorch/의 바로 아래에 위치시킨다
 
 위 링크에서 yolov5 weight를 다운로드받고, yolov5/weights/ 에 위치시킨다. ex) yolov5/weights/yolov5x.pt
 
-5. 
+5. google cloud platform key를 추가한다(local input video 사용 시 필요 없음, realtime==1일때만 사용됨)
+
+Documentation의 setting 부분에서 key가 위치한 주소를 찾을 수 있습니다.. key는 3번과 마찬가지로 최상단 폴더에 위치시켜주세요
 
 
 
