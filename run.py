@@ -79,10 +79,7 @@ if __name__ == '__main__':
     os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credential_path
     os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
-    # reid = REID()
-    #video1 = ['calliberation/in1_Trim.mp4']  # 엘리베이터
-    #video2 = ['calliberation/in2_Trim.mp4']  # 입구
-    #videos = [['calliberation/sample_video/ele.mp4'], ['calliberation/sample_video/en.mp4'], ['calliberation/sample_video/in.mp4']]  # 엘리베이터, 입구, 내부\
+
     str_video = ['cam1_daiso', 'cam2_daiso']
     videos = list()
     try:
@@ -133,8 +130,7 @@ if __name__ == '__main__':
                 size2 = frame_get2.qsize()
                 if args.limit > size2:
                     args.limit = size2
-        #print(frame_get1.qsize())
-        #print(frame_get2.qsize())
+      
         ids_per_frame1 = Manager().Queue()
         ids_per_frame2 = Manager().Queue()
         return_dict1 = Manager().Queue()

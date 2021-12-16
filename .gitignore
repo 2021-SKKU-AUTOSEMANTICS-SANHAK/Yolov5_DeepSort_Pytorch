@@ -10,4 +10,4 @@ deep_sort_pytorch/deep_sort/deep/checkpoint/*
 __pycache__/
 *.mp4
 output/
-
+test

@@ -74,12 +74,6 @@ def get_frame(i, frame):
     else:
         print('cannot open the vid #' + str(i))
         exit()
-    # while True:
-    #     ret, realframe = cam.read()
-    #     if (time.time() - start_time) >= 3:
-    #         cam.release()
-    #         break
-    #     frame.append(realframe)
     print("vid {} get_frame finished".format(str(i)))
 
 def get_frame_video(source, return_list, skip_frame, second, fps, resol, end_limit):

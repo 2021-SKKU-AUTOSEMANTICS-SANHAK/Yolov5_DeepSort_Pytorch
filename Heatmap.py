@@ -6,24 +6,6 @@ import time
 import queue as Queue
 import os
 import cv2
-from threading import Thread
-import GPUtil
-
-
-class Monitor(Thread):
-    def __init__(self, delay):
-        super(Monitor, self).__init__()
-        self.stopped = False
-        self.delay = delay  # Time between calls to GPUtil
-        self.start()
-
-    def run(self):
-        while not self.stopped:
-            GPUtil.showUtilization()
-            time.sleep(self.delay)
-
-    def stop(self):
-        self.stopped = True
 
 
 palette = (2 ** 11 - 1, 2 ** 15 - 1, 2 ** 20 - 1)
@@ -31,7 +13,6 @@ palette = (2 ** 11 - 1, 2 ** 15 - 1, 2 ** 20 - 1)
 def store(video_get1, video_get2, size, coor_get1, coor_get2,
           M1, M2, coor1, coor2, count, num_video, final_fuse_id,
           reid_dict, background, save_vid, save_txt, heatmapcount, example_points, heat_name, date_time):
-    #monitor = Monitor(5)
     #print('heatmap start')
     out = './static/video/'
     heatout ='./static/heatmap/'
@@ -193,7 +174,6 @@ def store(video_get1, video_get2, size, coor_get1, coor_get2,
         heatmap.save(saveheat)
     corfile.close()
     print("Finish")
-    #monitor.stop()
 
 def get_FrameLabels(frame):
     text_scale = max(1, frame.shape[1] / 1600.)
