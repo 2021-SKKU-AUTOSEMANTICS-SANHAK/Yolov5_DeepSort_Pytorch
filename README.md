@@ -68,8 +68,11 @@ Documentation의 setting 부분에서 key가 위치한 주소를 찾을 수 있�
 | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
 | - | OSNet x1.0 | market1501 | market1501 | - | - | - | 84.90% |
 | - | OSNet x1.0 | SKKU | SKKU | - | - | - | 88.90% |
-| plr_osnet.pth | PLR-OSNet | market1501 | market1501 | - | - | - | 88.90% |
-| plr_osnet.pth | PLR-OSNet | SKKU | SKKU | - | - | - | 85.90% |
+| plr_osnet.pth (market1501) | PLR-OSNet | market1501 | market1501 | - | - | - | 88.90% |
+| plr_osnet.pth (SKKU) | PLR-OSNet | SKKU | SKKU | - | - | - | 85.90% |
+| resnet50.pth.tar-90 | Resnet-50 | CUHK03 | CUHK03 | softmax | 0.0003 | 90 | 44.30% |
+| market1501.pth.tar-120 | PLR-OSNet | market1501 | market1501 | softmax | 0.000035 | 120 | 89.20% |
+| market1501+cuhksysu.pth.tar-140 | OSNet x1.0 | market1501 & CUHKSYSU | market1501 | softmax | 0.0015 | 140 | 83.20% |
 | osnet.pth.tar-80 | OSNet x1.0 | SKKU | SKKU | softmax | 0.0015 | 80 | 88.90% |
 | plr_osnet.pth.tar-110 | PLR-OSNet | SKKU | SKKU | triplet | 0.000045 | 110 | 87.10% |
 | lup_moco_r50.pth | MOCO v2 | market1501 | market1501 | - | - | - | 91.12% |
