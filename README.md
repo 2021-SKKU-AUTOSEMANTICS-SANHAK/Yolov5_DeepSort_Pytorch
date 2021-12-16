@@ -68,8 +68,8 @@ Documentation의 setting 부분에서 key가 위치한 주소를 찾을 수 있�
 | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
 | - | OSNet x1.0 | market1501 | market1501 | - | - | - | 84.90% |
 | - | OSNet x1.0 | SKKU | SKKU | - | - | - | 88.90% |
-| - | PLR-OSNet | market1501 | market1501 | - | - | - | 88.90% |
-| - | PLR-OSNet | SKKU | SKKU | - | - | - | 85.90% |
+| plr_osnet.pth | PLR-OSNet | market1501 | market1501 | - | - | - | 88.90% |
+| plr_osnet.pth | PLR-OSNet | SKKU | SKKU | - | - | - | 85.90% |
 | osnet.pth.tar-80 | OSNet x1.0 | SKKU | SKKU | softmax | 0.0015 | 80 | 88.90% |
 | plr_osnet.pth.tar-110 | PLR-OSNet | SKKU | SKKU | triplet | 0.000045 | 110 | 87.10% |
 | lup_moco_r50.pth | LUP-MOCO-R50 | market1501 | market1501 | - | - | - | 91.12% |
