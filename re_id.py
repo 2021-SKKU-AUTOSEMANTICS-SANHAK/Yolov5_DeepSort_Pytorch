@@ -6,22 +6,7 @@ import Heatmap as ht
 import copy
 import operator
 from threading import Thread
-import GPUtil
 
-class Monitor(Thread):
-    def __init__(self, delay):
-        super(Monitor, self).__init__()
-        self.stopped = False
-        self.delay = delay  # Time between calls to GPUtil
-        self.start()
-
-    def run(self):
-        while not self.stopped:
-            GPUtil.showUtilization()
-            time.sleep(self.delay)
-
-    def stop(self):
-        self.stopped = True
 
 def re_identification(args, return_dict1, return_dict2, ids_per_frame1_list, ids_per_frame2_list, video_get1, video_get2, coor_get1, coor_get2):
     if(args.reid=="on"):
@@ -30,7 +15,7 @@ def re_identification(args, return_dict1, return_dict2, ids_per_frame1_list, ids
     num_video = args.num_video
     thres = int(args.heatmapsec / args.second)
     if args.matrix == 'None':
-        #print("none")
+
         M2 = np.load("calliberation/coor_cam2_daiso_640.npy")
         M2 = np.array(M2, np.float32)
         f2 = open('calliberation/coor_cam2_daiso_640.txt', 'r')
@@ -42,8 +27,7 @@ def re_identification(args, return_dict1, return_dict2, ids_per_frame1_list, ids
         f1 = open('calliberation/coor_cam1_daiso_640.txt', 'r')
         line1 = f1.readline()
         coor1 = line1.split(' ')
-        #print(coor1)
-        #print(coor2)
+
         f1.close()
     else:
         x = args.matrix.split(' ')
@@ -78,8 +62,7 @@ def re_identification(args, return_dict1, return_dict2, ids_per_frame1_list, ids
             while (return_dict1.empty()) or (return_dict2.empty()) or (ids_per_frame1_list.empty())\
                     or ids_per_frame2_list.empty() or coor_get1.empty() or coor_get2.empty():
                     time.sleep(1)
-
-            start_time = time.time()
+            
             return_list = return_dict1.get()
             return_list2 = return_dict2.get()
 
@@ -94,11 +77,10 @@ def re_identification(args, return_dict1, return_dict2, ids_per_frame1_list, ids
             feats = dict()
             size = max(return_list.keys())
             print('reid start')
-            #monitor = Monitor(3)
             for key, value in return_list2.items():
                 return_list[key + size] = return_list2[key]
             images_by_id = copy.deepcopy(return_list)
-            #print(len(images_by_id))
+
 
             for i in ids_per_frame2:
                 d = set()
@@ -148,14 +130,13 @@ def re_identification(args, return_dict1, return_dict2, ids_per_frame1_list, ids
                                 dis.sort(key=operator.itemgetter(1))
                                 if dis[0][1] < threshold:
                                     combined_id = dis[0][0]
-                                    #print(dis[0][1])
-                                    #print('oid {} , nid {} , tmp {}'.format(combined_id, nid, dis[0][1]))
+
                                     images_by_id[combined_id] += images_by_id[nid]
                                     final_fuse_id[combined_id].append(nid)
                                     reid_dict[nid] = combined_id
                                 else:
                                     final_fuse_id[nid] = [nid]
-                                    #print(dis[0][1])
+
             else:
                 for f in ids_per_frame:
                     if f:
@@ -190,11 +171,9 @@ def re_identification(args, return_dict1, return_dict2, ids_per_frame1_list, ids
             if heatmapcount == 0:
                 example_points = []
                 heat_name += 1
-        #print(reid_dict)
+
 
         count += 1
-        #monitor.stop()
-        #print('Limit: {}'.format(args.limit))
         if args.realtime != 1 and count == args.limit:
             break
         elif args.limit != 0 and count == args.limit:
