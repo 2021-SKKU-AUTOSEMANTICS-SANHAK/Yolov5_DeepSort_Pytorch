@@ -65,7 +65,7 @@ Documentation의 setting 부분에서 key가 위치한 주소를 찾을 수 있�
 ## Re-ID Models
 
 | Model Name | Pretrained Model Name | Train Dataset | Test Dataset | Loss | Learning Rate | Epoch | mAP |
-| ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
+| --- | --- | --- | --- | --- | --- | --- | --- |
 | - | OSNet x1.0 | market1501 | market1501 | - | - | - | 84.90% |
 | - | OSNet x1.0 | SKKU | SKKU | - | - | - | 88.90% |
 | plr_osnet.pth (market1501) | PLR-OSNet | market1501 | market1501 | - | - | - | 88.90% |
